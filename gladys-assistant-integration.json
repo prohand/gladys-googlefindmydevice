@@ -1,0 +1,645 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "Google Find My Device",
+  "description": {
+    "en": "Locate and ring your Android phones and Find Hub trackers from Gladys.",
+    "fr": "Localisez et faites sonner vos téléphones Android et traceurs Find Hub depuis Gladys.",
+    "de": "Orte deine Android-Handys und Find-Hub-Tracker und lass sie aus Gladys klingeln.",
+    "es": "Localice y haga sonar sus móviles Android y rastreadores Find Hub desde Gladys."
+  },
+  "version": "0.0.0",
+  "docker_image": "ghcr.io/prohand/gladys-googlefindmydevice:0.0.0",
+  "gladys_version": ">=5.3.0",
+  "cover_image": "https://raw.githubusercontent.com/prohand/gladys-googlefindmydevice/main/cover.png",
+  "categories": ["security", "services"],
+  "keywords": [
+    "find my device",
+    "find hub",
+    "localiser mon appareil",
+    "android",
+    "pixel",
+    "gps tracker",
+    "bluetooth tracker",
+    "chipolo",
+    "pebblebee",
+    "presence"
+  ],
+  "transports": ["cloud"],
+  "location": true,
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Getting started",
+        "fr": "Pour commencer",
+        "de": "Erste Schritte",
+        "es": "Primeros pasos"
+      },
+      "description": {
+        "en": "Google offers no public API for Find My Device. On a computer with Chrome, run GoogleFindMyTools once (python main.py), sign in, then locate one of your devices: it asks for the screen lock PIN of one of your Android devices to unlock the encrypted locations. It then writes Auth/secrets.json: paste its whole content below.",
+        "fr": "Google ne propose pas d'API publique pour Localiser mon appareil. Sur un ordinateur avec Chrome, lancez une fois GoogleFindMyTools (python main.py), connectez-vous, puis localisez un de vos appareils : il demande le code de verrouillage d'un de vos appareils Android pour ouvrir les positions chiffrées. Il écrit alors Auth/secrets.json : collez tout son contenu ci-dessous.",
+        "de": "Google bietet keine öffentliche API für „Mein Gerät finden“. Starte auf einem Computer mit Chrome einmal GoogleFindMyTools (python main.py), melde dich an und orte eines deiner Geräte: Es fragt nach der PIN der Displaysperre eines deiner Android-Geräte, um die verschlüsselten Positionen zu öffnen. Danach schreibt es Auth/secrets.json: Füge den gesamten Inhalt unten ein.",
+        "es": "Google no ofrece una API pública para Encontrar mi dispositivo. En un ordenador con Chrome, ejecute una vez GoogleFindMyTools (python main.py), inicie sesión y localice uno de sus dispositivos: le pedirá el PIN de bloqueo de uno de sus dispositivos Android para abrir las posiciones cifradas. Después escribe Auth/secrets.json: pegue todo su contenido abajo."
+      },
+      "links": [
+        {
+          "url": "https://github.com/leonboe1/GoogleFindMyTools",
+          "label": {
+            "en": "GoogleFindMyTools",
+            "fr": "GoogleFindMyTools",
+            "de": "GoogleFindMyTools",
+            "es": "GoogleFindMyTools"
+          }
+        },
+        {
+          "url": "https://github.com/prohand/gladys-googlefindmydevice/blob/main/docs/en.md",
+          "label": {
+            "en": "Integration documentation",
+            "fr": "Documentation de l'intégration",
+            "de": "Dokumentation der Integration",
+            "es": "Documentación de la integración"
+          }
+        }
+      ]
+    },
+    {
+      "key": "secrets_json",
+      "type": "secret",
+      "label": {
+        "en": "Content of secrets.json",
+        "fr": "Contenu de secrets.json",
+        "de": "Inhalt von secrets.json",
+        "es": "Contenido de secrets.json"
+      },
+      "description": {
+        "en": "The whole file, from { to }. It gives full access to your Google account's devices: keep it private.",
+        "fr": "Tout le fichier, de { à }. Il donne accès aux appareils de votre compte Google : gardez-le privé.",
+        "de": "Die ganze Datei, von { bis }. Sie gibt Zugriff auf die Geräte deines Google-Kontos: Halte sie geheim.",
+        "es": "Todo el archivo, de { a }. Da acceso a los dispositivos de su cuenta de Google: manténgalo en privado."
+      },
+      "required": true,
+      "placeholder": {
+        "en": "{\"username\": \"…\", \"aas_token\": \"…\", …}",
+        "fr": "{\"username\": \"…\", \"aas_token\": \"…\", …}",
+        "de": "{\"username\": \"…\", \"aas_token\": \"…\", …}",
+        "es": "{\"username\": \"…\", \"aas_token\": \"…\", …}"
+      }
+    },
+    {
+      "key": "house",
+      "type": "select",
+      "source": "houses",
+      "label": {
+        "en": "Home",
+        "fr": "Maison",
+        "de": "Zuhause",
+        "es": "Casa"
+      },
+      "description": {
+        "en": "The Gladys house used for presence and distance. Empty: the first house with a location.",
+        "fr": "La maison Gladys utilisée pour la présence et la distance. Vide : la première maison localisée.",
+        "de": "Das Gladys-Haus für Anwesenheit und Entfernung. Leer: das erste Haus mit Standort.",
+        "es": "La casa de Gladys usada para la presencia y la distancia. Vacío: la primera casa con ubicación."
+      },
+      "required": false
+    },
+    {
+      "key": "home_radius",
+      "type": "number",
+      "label": {
+        "en": "Home radius (m)",
+        "fr": "Rayon de la maison (m)",
+        "de": "Radius um das Zuhause (m)",
+        "es": "Radio de la casa (m)"
+      },
+      "description": {
+        "en": "A device closer than this to the house is at home.",
+        "fr": "Un appareil plus proche que cela de la maison est à la maison.",
+        "de": "Ein Gerät, das näher am Haus ist, gilt als zu Hause.",
+        "es": "Un dispositivo más cerca que esto de la casa está en casa."
+      },
+      "required": false,
+      "default": 150,
+      "min": 50,
+      "max": 5000
+    },
+    {
+      "key": "refresh_interval",
+      "type": "number",
+      "label": {
+        "en": "Locate every (minutes)",
+        "fr": "Localiser toutes les (minutes)",
+        "de": "Orten alle (Minuten)",
+        "es": "Localizar cada (minutos)"
+      },
+      "description": {
+        "en": "Automatic locate requests, 5 minutes minimum. 0: only on demand. Each request wakes the devices: keep it reasonable for their battery.",
+        "fr": "Demandes de localisation automatiques, 5 minutes minimum. 0 : uniquement à la demande. Chaque demande réveille les appareils : restez raisonnable pour leur batterie.",
+        "de": "Automatische Ortungsanfragen, mindestens 5 Minuten. 0: nur auf Abruf. Jede Anfrage weckt die Geräte: Bleib mit Rücksicht auf ihren Akku vernünftig.",
+        "es": "Solicitudes automáticas de localización, 5 minutos como mínimo. 0: solo a petición. Cada solicitud despierta los dispositivos: sea razonable por su batería."
+      },
+      "required": false,
+      "default": 15,
+      "min": 0,
+      "max": 1440
+    }
+  ],
+  "actions": [
+    {
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "timeout_seconds": 60
+    },
+    {
+      "key": "locate",
+      "label": {
+        "en": "Locate a device",
+        "fr": "Localiser un appareil",
+        "de": "Ein Gerät orten",
+        "es": "Localizar un dispositivo"
+      },
+      "timeout_seconds": 75,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          },
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "ring",
+      "label": {
+        "en": "Ring a device",
+        "fr": "Faire sonner un appareil",
+        "de": "Ein Gerät klingeln lassen",
+        "es": "Hacer sonar un dispositivo"
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          },
+          "required": true
+        }
+      ]
+    }
+  ],
+  "widgets": [
+    {
+      "key": "find_my_devices",
+      "label": {
+        "en": "Find My Device",
+        "fr": "Localiser",
+        "de": "Gerät finden",
+        "es": "Encontrar"
+      },
+      "description": {
+        "en": "Where your devices are, with Locate and Ring buttons.",
+        "fr": "Où sont vos appareils, avec les boutons Localiser et Sonner.",
+        "de": "Wo deine Geräte sind, mit den Tasten Orten und Klingeln.",
+        "es": "Dónde están sus dispositivos, con botones Localizar y Sonar."
+      },
+      "icon": "map-pin",
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Only this device",
+            "fr": "Uniquement cet appareil",
+            "de": "Nur dieses Gerät",
+            "es": "Solo este dispositivo"
+          },
+          "description": {
+            "en": "Empty: every device in a list.",
+            "fr": "Vide : tous les appareils dans une liste.",
+            "de": "Leer: alle Geräte in einer Liste.",
+            "es": "Vacío: todos los dispositivos en una lista."
+          },
+          "required": false
+        }
+      ],
+      "action_timeout_seconds": 90
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "location_updated",
+      "label": {
+        "en": "A device has a new position",
+        "fr": "Un appareil a une nouvelle position",
+        "de": "Ein Gerät hat eine neue Position",
+        "es": "Un dispositivo tiene una nueva posición"
+      },
+      "description": {
+        "en": "Google reported a new position for a phone or a tracker.",
+        "fr": "Google a remonté une nouvelle position pour un téléphone ou un traceur.",
+        "de": "Google hat eine neue Position für ein Handy oder einen Tracker gemeldet.",
+        "es": "Google informó de una nueva posición de un móvil o un rastreador."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          },
+          "required": false
+        }
+      ],
+      "variables": [
+        {
+          "key": "device_name",
+          "type": "string",
+          "label": {
+            "en": "Device name",
+            "fr": "Nom de l'appareil",
+            "de": "Gerätename",
+            "es": "Nombre del dispositivo"
+          }
+        },
+        {
+          "key": "latitude",
+          "type": "number",
+          "label": {
+            "en": "Latitude",
+            "fr": "Latitude",
+            "de": "Breitengrad",
+            "es": "Latitud"
+          }
+        },
+        {
+          "key": "longitude",
+          "type": "number",
+          "label": {
+            "en": "Longitude",
+            "fr": "Longitude",
+            "de": "Längengrad",
+            "es": "Longitud"
+          }
+        },
+        {
+          "key": "accuracy",
+          "type": "number",
+          "label": {
+            "en": "Accuracy (m)",
+            "fr": "Précision (m)",
+            "de": "Genauigkeit (m)",
+            "es": "Precisión (m)"
+          }
+        },
+        {
+          "key": "distance_km",
+          "type": "number",
+          "label": {
+            "en": "Distance from home (km)",
+            "fr": "Distance de la maison (km)",
+            "de": "Entfernung von zu Hause (km)",
+            "es": "Distancia de casa (km)"
+          }
+        },
+        {
+          "key": "at_home",
+          "type": "boolean",
+          "label": {
+            "en": "At home",
+            "fr": "À la maison",
+            "de": "Zu Hause",
+            "es": "En casa"
+          }
+        },
+        {
+          "key": "place",
+          "type": "string",
+          "label": {
+            "en": "Place name",
+            "fr": "Nom du lieu",
+            "de": "Ortsname",
+            "es": "Nombre del lugar"
+          }
+        },
+        {
+          "key": "maps_url",
+          "type": "string",
+          "label": {
+            "en": "Google Maps link",
+            "fr": "Lien Google Maps",
+            "de": "Google-Maps-Link",
+            "es": "Enlace de Google Maps"
+          }
+        }
+      ]
+    },
+    {
+      "key": "arrived_home",
+      "label": {
+        "en": "A device arrives home",
+        "fr": "Un appareil arrive à la maison",
+        "de": "Ein Gerät kommt nach Hause",
+        "es": "Un dispositivo llega a casa"
+      },
+      "description": {
+        "en": "A device enters the home radius.",
+        "fr": "Un appareil entre dans le rayon de la maison.",
+        "de": "Ein Gerät betritt den Radius um das Zuhause.",
+        "es": "Un dispositivo entra en el radio de la casa."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          },
+          "required": false
+        }
+      ],
+      "variables": [
+        {
+          "key": "device_name",
+          "type": "string",
+          "label": {
+            "en": "Device name",
+            "fr": "Nom de l'appareil",
+            "de": "Gerätename",
+            "es": "Nombre del dispositivo"
+          }
+        },
+        {
+          "key": "distance_km",
+          "type": "number",
+          "label": {
+            "en": "Distance from home (km)",
+            "fr": "Distance de la maison (km)",
+            "de": "Entfernung von zu Hause (km)",
+            "es": "Distancia de casa (km)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "left_home",
+      "label": {
+        "en": "A device leaves home",
+        "fr": "Un appareil quitte la maison",
+        "de": "Ein Gerät verlässt das Zuhause",
+        "es": "Un dispositivo sale de casa"
+      },
+      "description": {
+        "en": "A device goes out of the home radius.",
+        "fr": "Un appareil sort du rayon de la maison.",
+        "de": "Ein Gerät verlässt den Radius um das Zuhause.",
+        "es": "Un dispositivo sale del radio de la casa."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          },
+          "required": false
+        }
+      ],
+      "variables": [
+        {
+          "key": "device_name",
+          "type": "string",
+          "label": {
+            "en": "Device name",
+            "fr": "Nom de l'appareil",
+            "de": "Gerätename",
+            "es": "Nombre del dispositivo"
+          }
+        },
+        {
+          "key": "distance_km",
+          "type": "number",
+          "label": {
+            "en": "Distance from home (km)",
+            "fr": "Distance de la maison (km)",
+            "de": "Entfernung von zu Hause (km)",
+            "es": "Distancia de casa (km)"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "locate_device",
+      "label": {
+        "en": "Locate a device",
+        "fr": "Localiser un appareil",
+        "de": "Ein Gerät orten",
+        "es": "Localizar un dispositivo"
+      },
+      "description": {
+        "en": "Ask Google for a fresh position and wait up to a minute for it.",
+        "fr": "Demande une position fraîche à Google et l'attend jusqu'à une minute.",
+        "de": "Fragt Google nach einer aktuellen Position und wartet bis zu einer Minute.",
+        "es": "Pide a Google una posición actual y la espera hasta un minuto."
+      },
+      "timeout_seconds": 75,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          },
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "key": "found",
+          "type": "boolean",
+          "label": {
+            "en": "Position received",
+            "fr": "Position reçue",
+            "de": "Position erhalten",
+            "es": "Posición recibida"
+          }
+        },
+        {
+          "key": "latitude",
+          "type": "number",
+          "label": {
+            "en": "Latitude",
+            "fr": "Latitude",
+            "de": "Breitengrad",
+            "es": "Latitud"
+          }
+        },
+        {
+          "key": "longitude",
+          "type": "number",
+          "label": {
+            "en": "Longitude",
+            "fr": "Longitude",
+            "de": "Längengrad",
+            "es": "Longitud"
+          }
+        },
+        {
+          "key": "accuracy",
+          "type": "number",
+          "label": {
+            "en": "Accuracy (m)",
+            "fr": "Précision (m)",
+            "de": "Genauigkeit (m)",
+            "es": "Precisión (m)"
+          }
+        },
+        {
+          "key": "distance_km",
+          "type": "number",
+          "label": {
+            "en": "Distance from home (km)",
+            "fr": "Distance de la maison (km)",
+            "de": "Entfernung von zu Hause (km)",
+            "es": "Distancia de casa (km)"
+          }
+        },
+        {
+          "key": "at_home",
+          "type": "boolean",
+          "label": {
+            "en": "At home",
+            "fr": "À la maison",
+            "de": "Zu Hause",
+            "es": "En casa"
+          }
+        },
+        {
+          "key": "maps_url",
+          "type": "string",
+          "label": {
+            "en": "Google Maps link",
+            "fr": "Lien Google Maps",
+            "de": "Google-Maps-Link",
+            "es": "Enlace de Google Maps"
+          }
+        }
+      ]
+    },
+    {
+      "key": "ring_device",
+      "label": {
+        "en": "Ring a device",
+        "fr": "Faire sonner un appareil",
+        "de": "Ein Gerät klingeln lassen",
+        "es": "Hacer sonar un dispositivo"
+      },
+      "description": {
+        "en": "The device rings at full volume, even in silent mode.",
+        "fr": "L'appareil sonne à plein volume, même en mode silencieux.",
+        "de": "Das Gerät klingelt in voller Lautstärke, auch im Lautlos-Modus.",
+        "es": "El dispositivo suena a todo volumen, incluso en modo silencio."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          },
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "key": "sent",
+          "type": "boolean",
+          "label": {
+            "en": "Order sent",
+            "fr": "Ordre envoyé",
+            "de": "Befehl gesendet",
+            "es": "Orden enviada"
+          }
+        }
+      ]
+    },
+    {
+      "key": "stop_ringing_device",
+      "label": {
+        "en": "Stop a device ringing",
+        "fr": "Arrêter la sonnerie d'un appareil",
+        "de": "Klingeln eines Geräts stoppen",
+        "es": "Detener la alarma de un dispositivo"
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          },
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "key": "sent",
+          "type": "boolean",
+          "label": {
+            "en": "Order sent",
+            "fr": "Ordre envoyé",
+            "de": "Befehl gesendet",
+            "es": "Orden enviada"
+          }
+        }
+      ]
+    }
+  ]
+}
