@@ -6,6 +6,8 @@ All notable changes to this integration are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.0.1] - 2026-11-23
+
 ### Added
 
 - Google Find My Device (Find Hub) devices in Gladys: Android phones and tablets and Find Hub
@@ -20,4 +22,5 @@ All notable changes to this integration are documented here. The format follows
 - Configuration buttons: test the connection, locate a device, ring a device.
 - English, French, German and Spanish texts and documentation.
 
-[Unreleased]: https://github.com/prohand/gladys-googlefindmydevice/commits/main
+[Unreleased]: https://github.com/prohand/gladys-googlefindmydevice/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/prohand/gladys-googlefindmydevice/releases/tag/v0.0.1

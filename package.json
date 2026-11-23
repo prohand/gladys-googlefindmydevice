@@ -1,6 +1,6 @@
 {
   "name": "gladys-googlefindmydevice",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "description": "Gladys Assistant external integration for Google Find My Device (Find Hub): locate and ring your phones and trackers.",
   "type": "module",
